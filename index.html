@@ -12,13 +12,18 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-shell">
+  <section class="home-screen" id="homeScreen">
+    <div class="home-brand"><span class="brand-mark"><span></span><span></span><span></span></span><div><strong>BOLA<span>CAI</span></strong><small>LABORATÓRIO DE IMPACTO</small></div></div>
+    <div class="home-content"><p class="eyebrow">SIMULAÇÃO DE DESTRUIÇÃO</p><h1>QUANTO MAIS<br><em>FORTE O IMPACTO,</em><br>MAIS LONGE VOCÊ VAI.</h1><p>Solte sua esfera, destrua materiais cada vez mais resistentes e evolua seu equipamento.</p><button id="playButton" class="play-button">JOGAR <span>→</span></button><small class="home-footnote">SEU PROGRESSO FICA SALVO AUTOMATICAMENTE</small></div>
+    <div class="home-orb orb-one"></div><div class="home-orb orb-two"></div>
+  </section>
+  <div class="app-shell game-screen" id="gameScreen">
     <header class="topbar">
       <a class="brand" href="#" aria-label="Bola Cai início">
         <span class="brand-mark"><span></span><span></span><span></span></span>
         <span><strong>BOLA<span>CAI</span></strong><small>LABORATÓRIO DE IMPACTO</small></span>
       </a>
-      <div class="top-stats">
+      <div class="top-stats"><button class="screen-button" id="homeButton">INÍCIO</button><button class="screen-button" id="workshopToggle">OFICINA</button>
         <div class="currency"><span class="coin-icon">¢</span><span id="coins">0</span><small>MOEDAS</small></div>
         <button class="icon-button" id="soundToggle" aria-label="Ativar ou desativar som" title="Som">♫</button>
       </div>
