@@ -64,12 +64,13 @@
   }
   function addCrack(x,y,amount){const count=Math.min(12,2+Math.floor(amount/25));for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,len=10+Math.random()*32;cracks.push({x,y,a,len,life:1})}}
   function burst(x,y,color,count,force=1){for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,s=(60+Math.random()*260)*force;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-60,life:.55+Math.random()*.65,max:.9,size:2+Math.random()*5,color,rot:Math.random()*6,vr:(Math.random()-.5)*8})}}
+  function playImpact(){if(!state.sound)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ac=playImpact.ac||(playImpact.ac=new AC());if(ac.state==="suspended")ac.resume();const osc=ac.createOscillator(),gain=ac.createGain();osc.type="triangle";osc.frequency.setValueAtTime(115,ac.currentTime);osc.frequency.exponentialRampToValueAtTime(48,ac.currentTime+.11);gain.gain.setValueAtTime(.12,ac.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.13);osc.connect(gain);gain.connect(ac.destination);osc.start();osc.stop(ac.currentTime+.14)}catch(e){}}
   function hit(){
-    const b=currentBall(),p=currentPlate();bounce++;ball.vy= -Math.abs(ball.vy)*ball.restitution;ball.vx+=(Math.random()-.5)*35;ball.spin+=.3;shake=Math.min(12,3+ball.impactEnergy/130);
-    const kinetic=.5*ball.mass*Math.pow(Math.abs(ball.vy/Math.max(.12,ball.restitution)),2);
-    let raw=(kinetic*.026)*(1+b.hardness*.35)*(1+state.power*.17)*(1+state.precision*.24);
+    const b=currentBall(),p=currentPlate(),impactSpeed=Math.abs(ball.vy);bounce++;playImpact();ball.vy= -impactSpeed*ball.restitution;ball.vx+=(Math.random()-.5)*35;ball.spin+=.3;shake=Math.min(12,3+ball.impactEnergy/130);
+    const kinetic=.5*ball.mass*Math.pow(impactSpeed,2);
+    let raw=(kinetic*.0012)*(1+b.hardness*.35)*(1+state.power*.17)*(1+state.precision*.24);
     if(state.specials.includes("charged")&&Math.random()<.12){raw*=2.7;toast("IMPACTO CRÍTICO!")}
-    const damage=Math.max(0,Math.min(plateHp,raw));plateHp-=damage;state.totalDamage+=damage;state.xp+=damage;const coins=damage*p.reward*.018*(state.specials.includes("gold")?1.25:1);state.coins+=coins;plateEarned+=coins;
+    const damage=Math.max(0,Math.min(plateHp,raw));plateHp-=damage;state.totalDamage+=damage;state.xp+=damage;const coins=damage*p.reward*.12*(state.specials.includes("gold")?1.25:1);state.coins+=coins;plateEarned+=coins;
     $("lastDamage").textContent="-"+fmt(damage);$("bounceCount").textContent=bounce;$("sceneStatus").textContent=damage>0?"IMPACTO REGISTRADO":"ENERGIA INSUFICIENTE";
     const d=dims();addCrack(d.cx,d.ground-8,damage);burst(d.cx,d.ground-8,p.top,Math.min(24,5+Math.floor(damage/12)),Math.min(1.8,.55+damage/120));floating.push({x:d.cx+16,y:d.ground-32,text:"-"+fmt(damage),life:1,color:"#ffd08a"});render();
     const next=BALLS[state.ballIndex+1];if(next&&state.xp>=next.xp){state.ballIndex++;state.xp=0;toast("BOLA EVOLUIU: "+currentBall().name.toUpperCase());burst(d.cx,d.ground-80,currentBall().light,36,1.5);save();render()}
@@ -77,6 +78,7 @@
     if(Math.abs(ball.vy)<78||damage<.12){ball.active=false;setTimeout(finishDrop,220)}
   }
   function breakPlate(){
+    if(ball)ball.active=false;
     const d=dims(),p=currentPlate();burst(d.cx,d.ground-10,p.top,70,2.2);for(let i=0;i<18;i++)particles.push({x:d.cx+(Math.random()-.5)*190,y:d.ground-10,vx:(Math.random()-.5)*500,vy:-100-Math.random()*420,life:1.1,max:1.1,size:5+Math.random()*13,color:[p.top,p.color,p.side][i%3],rot:Math.random()*6,vr:(Math.random()-.5)*9,rect:true});
     $("sceneStatus").textContent="PLACA DESTRUÍDA";plateHp=0;render();setTimeout(()=>{state.plateIndex=Math.min(state.plateIndex+1,PLATES.length-1);save();plateMax=currentPlate().hp;plateHp=plateMax;cracks=[];toast("NOVA PLACA: "+currentPlate().name.toUpperCase());finishDrop()},950)
   }
