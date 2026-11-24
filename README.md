@@ -8,7 +8,8 @@ Abra `index.html` em um navegador ou publique o repositório com GitHub Pages (S
 ## Primeira versão
 - Simulação de queda e quiques com gravidade, massa e coeficiente de restituição por material.
 - Materiais de bola com evolução automática por XP de impacto.
-- Placas com resistência crescente, rachaduras, partículas e fragmentação.
+- Placas com resistência crescente, incluindo progressão infinita após os 10 materiais iniciais, rachaduras, partículas e fragmentação.
+- Salvamento versionado com migração de progresso antigo para evitar carregar integridade incompatível após atualizações.
 - Oficina de potência, massa e precisão.
 - Loja de esferas especiais e moedas.
 - Salvamento local automático no navegador.

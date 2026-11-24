@@ -35,13 +35,14 @@
     {id:"charged",name:"Esfera carregada",desc:"Chance de 12% de causar um impacto crítico.",price:1100,glow:"#62d6ee",bonus:"Crítico 12%"},
     {id:"heavy",name:"Núcleo pesado",desc:"Aumenta em 18% a energia inicial da queda.",price:1800,glow:"#bb8bff",bonus:"Energia +18%"}
   ];
-  const defaultState = () => ({coins:0,ballIndex:0,plateIndex:0,xp:0,power:0,mass:0,precision:0,specials:[],sound:true,totalDamage:0});
+  const SAVE_VERSION = 2;
+  const defaultState = () => ({saveVersion:SAVE_VERSION,coins:0,ballIndex:0,plateIndex:0,xp:0,power:0,mass:0,precision:0,specials:[],sound:true,totalDamage:0});
   let state = loadState(), plateHp = 0, plateMax = 0, plateEarned = 0, ball = null, particles = [], cracks = [], floating = [], anim = 0, lastTime = 0, running = false, bounce = 0, shake = 0, toastTimer = 0;
   const G = 1850, FLOOR = 0;
-  function loadState(){try{return {...defaultState(),...JSON.parse(localStorage.getItem("bolacai-save")||"{}")}}catch{return defaultState()}}
-  function save(){localStorage.setItem("bolacai-save",JSON.stringify(state))}
+  function loadState(){try{const saved=JSON.parse(localStorage.getItem("bolacai-save")||"null");if(!saved||typeof saved!=="object")return defaultState();const migrated={...defaultState(),...saved,saveVersion:SAVE_VERSION};if((saved.saveVersion||0)<SAVE_VERSION)delete migrated.plateHp;return migrated}catch{return defaultState()}}
+  function save(){state.saveVersion=SAVE_VERSION;localStorage.setItem("bolacai-save",JSON.stringify(state))}
   function currentBall(){return BALLS[Math.min(state.ballIndex,BALLS.length-1)]}
-  function currentPlate(){return PLATES[Math.min(state.plateIndex,PLATES.length-1)]}
+  function currentPlate(){const last=PLATES[PLATES.length-1];if(state.plateIndex<PLATES.length)return PLATES[state.plateIndex];const extra=state.plateIndex-PLATES.length+1;return {...last,name:"Liga "+(extra+1)+" de "+last.name,hp:Math.round(last.hp*Math.pow(1.72,extra)),reward:Math.round(last.reward*Math.pow(1.22,extra)),hardness:"Extrema"}}
   function fmt(n){return Math.floor(n).toLocaleString("pt-BR")}
   function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2300)}
   function ballStyle(el,b){el.style.background='radial-gradient(circle at 30% 24%,'+b.light+' 0,'+b.color+' 43%,'+b.dark+' 100%)';el.style.borderColor=b.light}
@@ -57,7 +58,7 @@
   function resize(){const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
   function dims(){const w=canvas.clientWidth,h=canvas.clientHeight;return {w,h,cx:w/2,ground:h*.72,scale:Math.min(w/390,1.5)}}
   function startDrop(){
-    if(running)return;running=true;bounce=0;particles=[];floating=[];cracks=[];shake=0;
+    if(running)return;if(plateHp<=0){plateMax=currentPlate().hp;plateHp=plateMax;state.plateHp=plateHp;save();render()}running=true;bounce=0;particles=[];floating=[];cracks=[];shake=0;
     const d=dims(),b=currentBall(),mass=b.mass*(1+state.mass*.12),speed=690*(1+state.power*.045)*(state.specials.includes("heavy")?1.18:1);
     ball={x:d.cx,y:38,vx:0,vy:0,r:Math.max(17,Math.min(27,20+b.mass*2)),mass,restitution:Math.min(.9,b.restitution),active:true,angle:0,spin:0,material:b,impactEnergy:0};
     $("dropButton").disabled=true;$("sceneStatus").textContent="QUEDA INICIADA";ball.vy=speed;lastTime=performance.now();anim=requestAnimationFrame(loop);
@@ -80,7 +81,7 @@
   function breakPlate(){
     if(ball)ball.active=false;
     const d=dims(),p=currentPlate();burst(d.cx,d.ground-10,p.top,70,2.2);for(let i=0;i<18;i++)particles.push({x:d.cx+(Math.random()-.5)*190,y:d.ground-10,vx:(Math.random()-.5)*500,vy:-100-Math.random()*420,life:1.1,max:1.1,size:5+Math.random()*13,color:[p.top,p.color,p.side][i%3],rot:Math.random()*6,vr:(Math.random()-.5)*9,rect:true});
-    $("sceneStatus").textContent="PLACA DESTRUÍDA";plateHp=0;render();setTimeout(()=>{state.plateIndex=Math.min(state.plateIndex+1,PLATES.length-1);plateMax=currentPlate().hp;plateHp=plateMax;state.plateHp=plateHp;plateEarned=0;save();cracks=[];toast("NOVA PLACA: "+currentPlate().name.toUpperCase());finishDrop()},950)
+    $("sceneStatus").textContent="PLACA DESTRUÍDA";plateHp=0;render();setTimeout(()=>{state.plateIndex++;plateMax=currentPlate().hp;plateHp=plateMax;state.plateHp=plateHp;plateEarned=0;save();cracks=[];toast("NOVA PLACA: "+currentPlate().name.toUpperCase());finishDrop()},950)
   }
   function finishDrop(){running=false;ball=null;$("dropButton").disabled=false;$("sceneStatus").textContent="SISTEMA PRONTO";save();render();draw()}
   function loop(now){if(!running)return;const dt=Math.min(.032,(now-lastTime)/1000||.016);lastTime=now;const d=dims();if(ball&&ball.active){ball.vy+=G*dt;ball.y+=ball.vy*dt;ball.x+=ball.vx*dt;ball.angle+=ball.spin*dt;ball.vx*=Math.pow(.985,dt*60);const floor=d.ground-12;if(ball.y+ball.r>=floor&&ball.vy>0){ball.y=floor-ball.r;hit()}}updateEffects(dt);draw();if(running)anim=requestAnimationFrame(loop)}
