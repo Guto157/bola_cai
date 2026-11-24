@@ -38,7 +38,7 @@
   const SAVE_VERSION = 3;
   const defaultState = () => ({saveVersion:SAVE_VERSION,coins:0,ballIndex:0,plateIndex:0,xp:0,power:0,mass:0,precision:0,specials:[],sound:true,totalDamage:0});
   let state = loadState(), plateHp = 0, plateMax = 0, plateEarned = 0, ball = null, particles = [], cracks = [], floating = [], trails = [], rings = [], anim = 0, lastTime = 0, running = false, bounce = 0, shake = 0, toastTimer = 0;
-  const G = 1850, FLOOR = 0;
+  const G = 1650, FLOOR = 0;
   function loadState(){try{const saved=JSON.parse(localStorage.getItem("bolacai-save")||"null");if(!saved||typeof saved!=="object")return defaultState();if((saved.saveVersion||0)<SAVE_VERSION){const fresh=defaultState();localStorage.setItem("bolacai-save",JSON.stringify(fresh));return fresh}return {...defaultState(),...saved,saveVersion:SAVE_VERSION}}catch{return defaultState()}}
   function save(){state.saveVersion=SAVE_VERSION;localStorage.setItem("bolacai-save",JSON.stringify(state))}
   function currentBall(){return BALLS[Math.min(state.ballIndex,BALLS.length-1)]}
@@ -56,24 +56,24 @@
     $("specialShop").innerHTML=SPECIALS.map(s=>{const owned=state.specials.includes(s.id);return '<article class="special-item" style="--glow:'+s.glow+'"><strong>'+s.name+'</strong><p>'+s.desc+'</p><button data-special="'+s.id+'" '+(owned||state.coins<s.price?'disabled':'')+'>'+(owned?'ADQUIRIDA':fmt(s.price)+' ¢  •  '+s.bonus)+'</button></article>'}).join("");
   }
   function resize(){const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
-  function dims(){const w=canvas.clientWidth,h=canvas.clientHeight;return {w,h,cx:w/2,ground:h*.72,scale:Math.min(w/390,1.5)}}
+  function dims(){const w=canvas.clientWidth,h=canvas.clientHeight;return {w,h,cx:w/2,ground:h*.78,scale:Math.min(w/390,1.5)}}
   function startDrop(){
     if(running)return;if(plateHp<=0){plateMax=currentPlate().hp;plateHp=plateMax;state.plateHp=plateHp;save();render()}running=true;bounce=0;particles=[];floating=[];trails=[];rings=[];cracks=[];shake=0;
-    const d=dims(),b=currentBall(),mass=b.mass*(1+state.mass*.12),speed=690*(1+state.power*.045)*(state.specials.includes("heavy")?1.18:1);
-    ball={x:d.cx,y:38,vx:0,vy:0,r:Math.max(17,Math.min(27,20+b.mass*2)),mass,restitution:Math.min(.9,b.restitution),active:true,angle:0,spin:0,material:b,impactEnergy:0};
+    const d=dims(),b=currentBall(),mass=b.mass*(1+state.mass*.12),speed=820*(1+state.power*.045)*(state.specials.includes("heavy")?1.18:1);
+    ball={x:d.cx,y:38,vx:0,vy:0,r:Math.max(17,Math.min(27,20+b.mass*2)),mass,restitution:Math.max(.72,Math.min(.94,b.restitution)),active:true,angle:0,spin:0,material:b,impactEnergy:0};
     $("dropButton").disabled=true;$("sceneStatus").textContent="QUEDA INICIADA";ball.vy=speed;lastTime=performance.now();anim=requestAnimationFrame(loop);
   }
   function addCrack(x,y,amount){const count=Math.min(12,2+Math.floor(amount/25));for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,len=10+Math.random()*32;cracks.push({x,y,a,len,life:1})}}
   function burst(x,y,color,count,force=1){for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,s=(60+Math.random()*260)*force;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-60,life:.55+Math.random()*.65,max:.9,size:2+Math.random()*5,color,rot:Math.random()*6,vr:(Math.random()-.5)*8})}}
   function playImpact(){if(!state.sound)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ac=playImpact.ac||(playImpact.ac=new AC());if(ac.state==="suspended")ac.resume();const osc=ac.createOscillator(),gain=ac.createGain();osc.type="triangle";osc.frequency.setValueAtTime(115,ac.currentTime);osc.frequency.exponentialRampToValueAtTime(48,ac.currentTime+.11);gain.gain.setValueAtTime(.12,ac.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.13);osc.connect(gain);gain.connect(ac.destination);osc.start();osc.stop(ac.currentTime+.14)}catch(e){}}
   function hit(){
-    const b=ball.material,p=currentPlate(),impactSpeed=Math.abs(ball.vy);bounce++;playImpact();ball.vy= -impactSpeed*ball.restitution;ball.vx+=(Math.random()-.5)*35;ball.spin+=.3;shake=Math.min(18,4+impactSpeed/95);rings.push({x:ball.x,y:dims().ground-8,r:ball.r,life:.42,max:.42,color:b.light});
+    const b=ball.material,p=currentPlate(),impactSpeed=Math.abs(ball.vy);bounce++;playImpact();ball.vy= -impactSpeed*ball.restitution*.96;ball.vx+=(Math.random()-.5)*35;ball.spin+=.3;shake=Math.min(22,7+impactSpeed/75);const flash=$("gameFlash");if(flash){flash.classList.remove("impact");void flash.offsetWidth;flash.classList.add("impact")}rings.push({x:ball.x,y:dims().ground-8,r:ball.r,life:.42,max:.42,color:b.light});
     const kinetic=.5*ball.mass*Math.pow(impactSpeed,2);
     let raw=(kinetic*.0012)*(1+b.hardness*.35)*(1+state.power*.17)*(1+state.precision*.24);
     if(state.specials.includes("charged")&&Math.random()<.12){raw*=2.7;toast("IMPACTO CRÍTICO!")}
     const damage=Math.max(0,Math.min(plateHp,raw));plateHp-=damage;state.plateHp=plateHp;state.totalDamage+=damage;state.xp+=damage;const coins=damage*p.reward*.12*(state.specials.includes("gold")?1.25:1);state.coins+=coins;plateEarned+=coins;
     $("lastDamage").textContent="-"+fmt(damage);$("bounceCount").textContent=bounce;$("sceneStatus").textContent=damage>0?"IMPACTO REGISTRADO":"ENERGIA INSUFICIENTE";
-    const d=dims();addCrack(d.cx,d.ground-8,damage);burst(d.cx,d.ground-8,p.top,Math.min(24,5+Math.floor(damage/12)),Math.min(1.8,.55+damage/120));floating.push({x:d.cx+16,y:d.ground-32,text:"-"+fmt(damage),life:1,color:"#ffd08a"});render();
+    const d=dims();addCrack(d.cx,d.ground-8,damage);burst(d.cx,d.ground-8,p.top,Math.min(52,14+Math.floor(damage/7)),Math.min(2.5,.9+damage/100));floating.push({x:d.cx+16,y:d.ground-32,text:"-"+fmt(damage),life:1,color:"#ffd08a"});render();
     const next=BALLS[state.ballIndex+1];if(next&&state.xp>=next.xp){state.ballIndex++;state.xp=0;toast("BOLA EVOLUIU: "+currentBall().name.toUpperCase());burst(d.cx,d.ground-80,currentBall().light,36,1.5);save();render()}
     save();if(plateHp<=0){breakPlate();return}
     if(Math.abs(ball.vy)<24){const d2=dims();ball.vy=0;ball.vx*=.25;ball.active=false;ball.y=d2.ground-12-ball.r;burst(ball.x,d2.ground-9,"#b9d7df",12,.45);floating.push({x:ball.x,y:ball.y-24,text:"QUIQUE FINAL",life:1.1,color:"#8de4e8"});$( "sceneStatus" ).textContent="ESFERA ESTABILIZADA";setTimeout(finishDrop,650)}
@@ -98,7 +98,7 @@
     const pg=ctx.createLinearGradient(px,py,px,py+ph);pg.addColorStop(0,p.top);pg.addColorStop(1,p.color);ctx.fillStyle=pg;roundedRect(ctx,px,py-9,pw,ph,5);ctx.fill();ctx.strokeStyle="#ffffff45";ctx.stroke();
     ctx.strokeStyle="#2b1e1744";ctx.lineWidth=2;cracks.forEach(c=>{ctx.beginPath();ctx.moveTo(c.x,c.y);ctx.lineTo(c.x+Math.cos(c.a)*c.len,c.y+Math.sin(c.a)*c.len);ctx.lineTo(c.x+Math.cos(c.a+.8)*c.len*.65,c.y+Math.sin(c.a+.8)*c.len*.65);ctx.stroke()});
     ctx.fillStyle="#d7e3e633";ctx.font="700 8px DM Sans";ctx.textAlign="center";ctx.fillText(p.name.toUpperCase(),cx,py+13);
-    trails.forEach(t=>{ctx.save();ctx.globalAlpha=Math.max(0,t.life/t.max)*.22;const tg=ctx.createRadialGradient(t.x,t.y,1,t.x,t.y,t.r*1.5);tg.addColorStop(0,t.color);tg.addColorStop(1,"#ffffff00");ctx.fillStyle=tg;ctx.beginPath();ctx.arc(t.x,t.y,t.r*1.5,0,Math.PI*2);ctx.fill();ctx.restore()});rings.forEach(r=>{ctx.save();ctx.globalAlpha=Math.max(0,r.life/r.max)*.7;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x,r.y,r.r,0,Math.PI*2);ctx.stroke();ctx.restore()});if(ball){ctx.fillStyle="#0007";ctx.beginPath();ctx.ellipse(ball.x,py-4,ball.r*1.1,5,0,0,Math.PI*2);ctx.fill();ctx.save();ctx.shadowColor=ball.material.light;ctx.shadowBlur=ball.active?20:9;drawBall(ball.x,ball.y,ball.r,ball.material,ball.angle);ctx.restore()}
+    trails.forEach(t=>{ctx.save();ctx.globalAlpha=Math.max(0,t.life/t.max)*.22;const tg=ctx.createRadialGradient(t.x,t.y,1,t.x,t.y,t.r*1.5);tg.addColorStop(0,t.color);tg.addColorStop(1,"#ffffff00");ctx.fillStyle=tg;ctx.beginPath();ctx.arc(t.x,t.y,t.r*1.5,0,Math.PI*2);ctx.fill();ctx.restore()});rings.forEach(r=>{ctx.save();ctx.globalAlpha=Math.max(0,r.life/r.max)*.7;ctx.strokeStyle=r.color;ctx.lineWidth=2;ctx.beginPath();ctx.arc(r.x,r.y,r.r,0,Math.PI*2);ctx.stroke();ctx.restore()});if(ball){ctx.fillStyle="#0009";ctx.beginPath();ctx.ellipse(ball.x,py-4,ball.r*1.35,7,0,0,Math.PI*2);ctx.fill();ctx.save();ctx.shadowColor=ball.material.light;ctx.shadowBlur=ball.active?34:14;drawBall(ball.x,ball.y,ball.r,ball.material,ball.angle);ctx.restore()}
     else{const b=currentBall();drawBall(cx,Math.max(35,py-150),Math.max(17,Math.min(27,20+b.mass*2)),b,0);ctx.strokeStyle="#75cbd544";ctx.setLineDash([3,7]);ctx.beginPath();ctx.moveTo(cx,Math.max(60,py-115));ctx.lineTo(cx,py-48);ctx.stroke();ctx.setLineDash([])}
     particles.forEach(p=>{ctx.save();ctx.globalAlpha=Math.max(0,p.life/(p.max||1));ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.color;if(p.rect)ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*.72);else{ctx.beginPath();ctx.arc(0,0,p.size/2,0,Math.PI*2);ctx.fill()}ctx.restore()});
     floating.forEach(f=>{ctx.globalAlpha=Math.max(0,f.life);ctx.fillStyle=f.color;ctx.font="900 17px Barlow Condensed";ctx.textAlign="center";ctx.fillText(f.text,f.x,f.y)});
@@ -106,14 +106,10 @@
   }
   $("dropButton").addEventListener("click",startDrop);
   const homeScreen=$("homeScreen"),gameScreen=$("gameScreen");
-  function showGame(){homeScreen.style.display="none";gameScreen.classList.add("active");requestAnimationFrame(resize)}
-  function showHome(){if(running){toast("Aguarde o lançamento terminar.");return}gameScreen.classList.remove("active");$("lower-grid")?.classList.remove("open");homeScreen.style.display="flex"}
+  function showGame(){homeScreen.style.display="none";gameScreen.classList.add("active");requestAnimationFrame(()=>{resize();draw()})}
+  function showHome(){if(running){toast("Aguarde o lançamento terminar.");return}gameScreen.classList.remove("active");homeScreen.style.display="flex"}
   $("playButton").addEventListener("click",showGame);
-  $("homeButton").addEventListener("click",showHome);
-  $("workshopToggle").addEventListener("click",()=>{$("lower-grid").classList.toggle("open")});
   $("upgradeList").addEventListener("click",e=>{const btn=e.target.closest("[data-upgrade]");if(!btn)return;const u=UPGRADES.find(x=>x.id===btn.dataset.upgrade),cost=upgradeCost(u);if(state.coins<cost||state[u.id]>=u.max)return;state.coins-=cost;state[u.id]++;save();render();toast(u.name+" melhorada!")});
   $("specialShop").addEventListener("click",e=>{const btn=e.target.closest("[data-special]");if(!btn)return;const s=SPECIALS.find(x=>x.id===btn.dataset.special);if(state.specials.includes(s.id)||state.coins<s.price)return;state.coins-=s.price;state.specials.push(s.id);save();render();toast(s.name+" adquirida!")});
-  $("soundToggle").addEventListener("click",()=>{state.sound=!state.sound;$("soundToggle").style.color=state.sound?"var(--cyan)":"var(--muted)";toast(state.sound?"Som ativado":"Som desativado");save()});
-  $("resetButton").addEventListener("click",()=>{if(!confirm("Tem certeza que deseja apagar todo o progresso?"))return;state=defaultState();plateMax=currentPlate().hp;plateHp=plateMax;state.plateHp=plateHp;plateEarned=0;save();render();draw();toast("Progresso reiniciado")});
-  window.addEventListener("resize",resize);plateMax=currentPlate().hp;plateHp=Number.isFinite(state.plateHp)&&state.plateHp!==null?Math.max(0,Math.min(plateMax,state.plateHp)):plateMax;render();resize();$("soundToggle").style.color=state.sound?"var(--cyan)":"var(--muted)";
+  window.addEventListener("resize",resize);plateMax=currentPlate().hp;plateHp=Number.isFinite(state.plateHp)&&state.plateHp!==null?Math.max(0,Math.min(plateMax,state.plateHp)):plateMax;render();resize();
 })();
