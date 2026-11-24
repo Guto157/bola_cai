@@ -15,7 +15,7 @@
   <section class="home-screen" id="homeScreen">
     <header class="home-top">
       <div class="home-brand"><span class="brand-mark"><span></span><span></span><span></span></span><div><strong>BOLA<span>CAI</span></strong><small>LABORATÓRIO DE IMPACTO</small></div></div>
-      <div class="home-coins"><span class="coin-icon">¢</span><strong id="coins">0</strong><small>MOEDAS</small></div>
+      <div class="home-coins"><span class="coin-icon">¢</span><strong id="coinsHome">0</strong><small>MOEDAS</small></div>
     </header>
     <div class="home-content">
       <p class="eyebrow">SIMULAÇÃO DE DESTRUIÇÃO</p>
@@ -30,17 +30,30 @@
       <div class="special-shop" id="specialShop"></div>
     </section>
     <div class="home-orb orb-one"></div><div class="home-orb orb-two"></div>
-    <div class="home-hidden" aria-hidden="true">
-      <span id="plateName"></span><span id="plateHardness"></span><span id="plateLevel"></span><span id="ballName"></span><span id="ballLevel"></span><span id="nextBallName"></span><span id="evolutionText"></span><span id="plateHealthText"></span><span id="plateEarnings"></span>
-      <div id="plateHealthBar"></div><div id="xpBar"></div><div id="miniBall"></div><div id="evolutionBall"></div>
-    </div>
   </section>
   <main class="game-screen" id="gameScreen">
     <canvas id="scene" aria-label="Bola caindo e quicando sobre uma placa"></canvas>
-    <div class="game-flash" id="gameFlash"></div>
-    <div class="game-hud"><span id="sceneStatus">PRONTO</span><strong>QUIQUE <b id="bounceCount">0</b></strong></div>
+    <div class="game-topbar">
+      <button id="homeButton" class="back-button" aria-label="Voltar ao início">‹ <span>VOLTAR</span></button>
+      <div class="game-currency"><span>¢</span><strong id="coins">0</strong></div>
+      <button id="soundToggle" class="sound-button" aria-label="Ativar ou desativar som">♫</button>
+    </div>
+    <section class="game-info">
+      <div class="info-material"><small>MATERIAL EM TESTE</small><strong id="plateName">Papelão prensado</strong><span id="plateHardness">Resistência muito baixa</span></div>
+      <div class="info-level"><small>PLACA</small><strong id="plateLevel">01</strong></div>
+      <div class="info-bounce"><small>QUIQUES</small><strong id="bounceCount">0</strong></div>
+      <div class="info-status" id="sceneStatus">SISTEMA PRONTO</div>
+      <div class="info-health"><div><span>INTEGRIDADE</span><b id="plateHealthText">100%</b></div><div class="health-track"><div id="plateHealthBar"></div></div></div>
+    </section>
+    <div class="impact-pill">ÚLTIMO IMPACTO <strong id="lastDamage">—</strong></div>
+    <section class="game-bottom-info">
+      <div class="ball-summary"><div class="mini-ball" id="miniBall"></div><div><small>SUA ESFERA</small><strong id="ballName">Papel amassado</strong><span id="ballLevel">NÍVEL 1</span></div></div>
+      <div class="evolution-summary"><div class="evolution-head"><small>PRÓXIMA EVOLUÇÃO</small><b id="evolutionText">0 XP</b></div><strong id="nextBallName">Plástico rígido</strong><div class="xp-track"><div id="xpBar"></div></div></div>
+      <div class="earnings-summary"><small>GANHOS DA PLACA</small><strong id="plateEarnings">+0 ¢</strong></div>
+    </section>
     <div class="game-bottom"><button id="dropButton" class="drop-button"><span class="button-icon">↓</span><span>SOLTAR BOLA</span></button></div>
-    <div class="game-hidden" aria-hidden="true"><span id="lastDamage">—</span></div>
+    <div class="game-flash" id="gameFlash"></div>
+    <div class="game-hidden" aria-hidden="true"><div id="evolutionBall"></div><span id="homePlateStatus"></span></div>
   </main>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="game.js"></script>
