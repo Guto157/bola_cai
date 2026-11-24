@@ -3,27 +3,27 @@
   const $ = id => document.getElementById(id);
   const canvas = $("scene"), ctx = canvas.getContext("2d");
   const BALLS = [
-    {name:"Papel amassado",short:"Papel",mass:.055,restitution:.18,hardness:.25,color:"#c7b99f",light:"#f2e7d4",dark:"#625747",xp:100,desc:"Levíssima e quase sem elasticidade."},
-    {name:"Plástico rígido",short:"Plástico",mass:.12,restitution:.48,hardness:.55,color:"#54b9c9",light:"#b7f5f5",dark:"#145568",xp:260,desc:"Mais rígida, recupera parte da energia."},
-    {name:"Borracha",short:"Borracha",mass:.16,restitution:.82,hardness:.38,color:"#e0a34c",light:"#ffe3a1",dark:"#75401e",xp:620,desc:"Alta elasticidade: quica por muito mais tempo."},
-    {name:"Madeira maciça",short:"Madeira",mass:.42,restitution:.32,hardness:1.1,color:"#a66b3d",light:"#e7b47d",dark:"#4d2b19",xp:1350,desc:"Mais densa, com quique moderado."},
-    {name:"Vidro temperado",short:"Vidro",mass:.36,restitution:.58,hardness:1.65,color:"#72c9d5",light:"#e0ffff",dark:"#1a5868",xp:2900,desc:"Rígida e dura, com impacto concentrado."},
-    {name:"Alumínio",short:"Alumínio",mass:.78,restitution:.42,hardness:2.3,color:"#a9b8c4",light:"#f3f8fc",dark:"#465665",xp:6100,desc:"Metal leve, porém muito mais rígido."},
-    {name:"Ferro",short:"Ferro",mass:1.45,restitution:.28,hardness:3.5,color:"#788995",light:"#dce5eb",dark:"#27343f",xp:12800,desc:"Alta densidade e impacto pesado."},
-    {name:"Aço",short:"Aço",mass:1.8,restitution:.34,hardness:5.4,color:"#9aa9b7",light:"#f1f7fc",dark:"#354451",xp:27000,desc:"Liga resistente, pesada e rígida."},
-    {name:"Tungstênio",short:"Tungstênio",mass:3.2,restitution:.22,hardness:8.5,color:"#66717e",light:"#c9d2db",dark:"#202833",xp:56000,desc:"Extremamente denso. Impacto brutal."}
+    {name:"Papel amassado",short:"Papel",mass:.055,restitution:.18,hardness:.25,color:"#c7b99f",light:"#f2e7d4",dark:"#625747",xp:1000,desc:"Levíssima e quase sem elasticidade."},
+    {name:"Plástico rígido",short:"Plástico",mass:.12,restitution:.48,hardness:.55,color:"#54b9c9",light:"#b7f5f5",dark:"#145568",xp:2600,desc:"Mais rígida, recupera parte da energia."},
+    {name:"Borracha",short:"Borracha",mass:.16,restitution:.82,hardness:.38,color:"#e0a34c",light:"#ffe3a1",dark:"#75401e",xp:6200,desc:"Alta elasticidade: quica por muito mais tempo."},
+    {name:"Madeira maciça",short:"Madeira",mass:.42,restitution:.32,hardness:1.1,color:"#a66b3d",light:"#e7b47d",dark:"#4d2b19",xp:13500,desc:"Mais densa, com quique moderado."},
+    {name:"Vidro temperado",short:"Vidro",mass:.36,restitution:.58,hardness:1.65,color:"#72c9d5",light:"#e0ffff",dark:"#1a5868",xp:29000,desc:"Rígida e dura, com impacto concentrado."},
+    {name:"Alumínio",short:"Alumínio",mass:.78,restitution:.42,hardness:2.3,color:"#a9b8c4",light:"#f3f8fc",dark:"#465665",xp:61000,desc:"Metal leve, porém muito mais rígido."},
+    {name:"Ferro",short:"Ferro",mass:1.45,restitution:.28,hardness:3.5,color:"#788995",light:"#dce5eb",dark:"#27343f",xp:128000,desc:"Alta densidade e impacto pesado."},
+    {name:"Aço",short:"Aço",mass:1.8,restitution:.34,hardness:5.4,color:"#9aa9b7",light:"#f1f7fc",dark:"#354451",xp:270000,desc:"Liga resistente, pesada e rígida."},
+    {name:"Tungstênio",short:"Tungstênio",mass:3.2,restitution:.22,hardness:8.5,color:"#66717e",light:"#c9d2db",dark:"#202833",xp:560000,desc:"Extremamente denso. Impacto brutal."}
   ];
   const PLATES = [
-    {name:"Papelão prensado",hp:90,hardness:"Muito baixa",color:"#9b754e",top:"#c9a477",side:"#63452f",reward:1},
-    {name:"Madeira macia",hp:260,hardness:"Baixa",color:"#95613a",top:"#c18a59",side:"#59371f",reward:2},
-    {name:"Pinus seco",hp:620,hardness:"Baixa",color:"#a87848",top:"#d0a16d",side:"#654329",reward:3},
-    {name:"Calcário",hp:1450,hardness:"Média",color:"#8d9291",top:"#c3c7c3",side:"#565e60",reward:4},
-    {name:"Granito",hp:3400,hardness:"Alta",color:"#737c83",top:"#aeb8bd",side:"#424c55",reward:6},
-    {name:"Cobre",hp:7600,hardness:"Alta",color:"#a96745",top:"#dc956c",side:"#663b2b",reward:8},
-    {name:"Ferro fundido",hp:16500,hardness:"Muito alta",color:"#687680",top:"#a0afb8",side:"#37434c",reward:11},
-    {name:"Aço temperado",hp:36000,hardness:"Muito alta",color:"#657d91",top:"#b1c6d5",side:"#354958",reward:15},
-    {name:"Titânio",hp:82000,hardness:"Extrema",color:"#778b9b",top:"#c5d5e0",side:"#3b4d5a",reward:21},
-    {name:"Diamante bruto",hp:190000,hardness:"Extrema",color:"#398b9d",top:"#8de0e8",side:"#174957",reward:30}
+    {name:"Papelão prensado",hp:900,hardness:"Muito baixa",color:"#9b754e",top:"#c9a477",side:"#63452f",reward:1},
+    {name:"Madeira macia",hp:2600,hardness:"Baixa",color:"#95613a",top:"#c18a59",side:"#59371f",reward:2},
+    {name:"Pinus seco",hp:6200,hardness:"Baixa",color:"#a87848",top:"#d0a16d",side:"#654329",reward:3},
+    {name:"Calcário",hp:14500,hardness:"Média",color:"#8d9291",top:"#c3c7c3",side:"#565e60",reward:4},
+    {name:"Granito",hp:34000,hardness:"Alta",color:"#737c83",top:"#aeb8bd",side:"#424c55",reward:6},
+    {name:"Cobre",hp:76000,hardness:"Alta",color:"#a96745",top:"#dc956c",side:"#663b2b",reward:8},
+    {name:"Ferro fundido",hp:165000,hardness:"Muito alta",color:"#687680",top:"#a0afb8",side:"#37434c",reward:11},
+    {name:"Aço temperado",hp:360000,hardness:"Muito alta",color:"#657d91",top:"#b1c6d5",side:"#354958",reward:15},
+    {name:"Titânio",hp:820000,hardness:"Extrema",color:"#778b9b",top:"#c5d5e0",side:"#3b4d5a",reward:21},
+    {name:"Diamante bruto",hp:1900000,hardness:"Extrema",color:"#398b9d",top:"#8de0e8",side:"#174957",reward:30}
   ];
   const UPGRADES = [
     {id:"power",name:"Potência",icon:"↗",desc:"Aumenta o dano de cada impacto.",base:35,growth:1.65,max:30},
@@ -104,6 +104,12 @@
     ctx.restore();
   }
   $("dropButton").addEventListener("click",startDrop);
+  const homeScreen=$("homeScreen"),gameScreen=$("gameScreen");
+  function showGame(){homeScreen.style.display="none";gameScreen.classList.add("active");requestAnimationFrame(resize)}
+  function showHome(){if(running){toast("Aguarde o lançamento terminar.");return}gameScreen.classList.remove("active");$("lower-grid")?.classList.remove("open");homeScreen.style.display="flex"}
+  $("playButton").addEventListener("click",showGame);
+  $("homeButton").addEventListener("click",showHome);
+  $("workshopToggle").addEventListener("click",()=>{$("lower-grid").classList.toggle("open")});
   $("upgradeList").addEventListener("click",e=>{const btn=e.target.closest("[data-upgrade]");if(!btn)return;const u=UPGRADES.find(x=>x.id===btn.dataset.upgrade),cost=upgradeCost(u);if(state.coins<cost||state[u.id]>=u.max)return;state.coins-=cost;state[u.id]++;save();render();toast(u.name+" melhorada!")});
   $("specialShop").addEventListener("click",e=>{const btn=e.target.closest("[data-special]");if(!btn)return;const s=SPECIALS.find(x=>x.id===btn.dataset.special);if(state.specials.includes(s.id)||state.coins<s.price)return;state.coins-=s.price;state.specials.push(s.id);save();render();toast(s.name+" adquirida!")});
   $("soundToggle").addEventListener("click",()=>{state.sound=!state.sound;$("soundToggle").style.color=state.sound?"var(--cyan)":"var(--muted)";toast(state.sound?"Som ativado":"Som desativado");save()});
