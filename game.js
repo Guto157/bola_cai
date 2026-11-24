@@ -57,7 +57,7 @@
   function resize(){const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
   function dims(){const w=canvas.clientWidth,h=canvas.clientHeight;return {w,h,cx:w/2,ground:h*.72,scale:Math.min(w/390,1.5)}}
   function startDrop(){
-    if(running)return;running=true;bounce=0;particles=[];floating=[];cracks=[];shake=0;plateMax=currentPlate().hp;plateHp=plateMax;plateEarned=0;
+    if(running)return;running=true;bounce=0;particles=[];floating=[];cracks=[];shake=0;
     const d=dims(),b=currentBall(),mass=b.mass*(1+state.mass*.12),speed=690*(1+state.power*.045)*(state.specials.includes("heavy")?1.18:1);
     ball={x:d.cx,y:38,vx:0,vy:0,r:Math.max(17,Math.min(27,20+b.mass*2)),mass,restitution:Math.min(.9,b.restitution),active:true,angle:0,spin:0,material:b,impactEnergy:0};
     $("dropButton").disabled=true;$("sceneStatus").textContent="QUEDA INICIADA";ball.vy=speed;lastTime=performance.now();anim=requestAnimationFrame(loop);
@@ -70,17 +70,17 @@
     const kinetic=.5*ball.mass*Math.pow(impactSpeed,2);
     let raw=(kinetic*.0012)*(1+b.hardness*.35)*(1+state.power*.17)*(1+state.precision*.24);
     if(state.specials.includes("charged")&&Math.random()<.12){raw*=2.7;toast("IMPACTO CRÍTICO!")}
-    const damage=Math.max(0,Math.min(plateHp,raw));plateHp-=damage;state.totalDamage+=damage;state.xp+=damage;const coins=damage*p.reward*.12*(state.specials.includes("gold")?1.25:1);state.coins+=coins;plateEarned+=coins;
+    const damage=Math.max(0,Math.min(plateHp,raw));plateHp-=damage;state.plateHp=plateHp;state.totalDamage+=damage;state.xp+=damage;const coins=damage*p.reward*.12*(state.specials.includes("gold")?1.25:1);state.coins+=coins;plateEarned+=coins;
     $("lastDamage").textContent="-"+fmt(damage);$("bounceCount").textContent=bounce;$("sceneStatus").textContent=damage>0?"IMPACTO REGISTRADO":"ENERGIA INSUFICIENTE";
     const d=dims();addCrack(d.cx,d.ground-8,damage);burst(d.cx,d.ground-8,p.top,Math.min(24,5+Math.floor(damage/12)),Math.min(1.8,.55+damage/120));floating.push({x:d.cx+16,y:d.ground-32,text:"-"+fmt(damage),life:1,color:"#ffd08a"});render();
     const next=BALLS[state.ballIndex+1];if(next&&state.xp>=next.xp){state.ballIndex++;state.xp=0;toast("BOLA EVOLUIU: "+currentBall().name.toUpperCase());burst(d.cx,d.ground-80,currentBall().light,36,1.5);save();render()}
-    if(plateHp<=0){breakPlate();return}
+    save();if(plateHp<=0){breakPlate();return}
     if(Math.abs(ball.vy)<78||damage<.12){ball.active=false;setTimeout(finishDrop,220)}
   }
   function breakPlate(){
     if(ball)ball.active=false;
     const d=dims(),p=currentPlate();burst(d.cx,d.ground-10,p.top,70,2.2);for(let i=0;i<18;i++)particles.push({x:d.cx+(Math.random()-.5)*190,y:d.ground-10,vx:(Math.random()-.5)*500,vy:-100-Math.random()*420,life:1.1,max:1.1,size:5+Math.random()*13,color:[p.top,p.color,p.side][i%3],rot:Math.random()*6,vr:(Math.random()-.5)*9,rect:true});
-    $("sceneStatus").textContent="PLACA DESTRUÍDA";plateHp=0;render();setTimeout(()=>{state.plateIndex=Math.min(state.plateIndex+1,PLATES.length-1);save();plateMax=currentPlate().hp;plateHp=plateMax;cracks=[];toast("NOVA PLACA: "+currentPlate().name.toUpperCase());finishDrop()},950)
+    $("sceneStatus").textContent="PLACA DESTRUÍDA";plateHp=0;render();setTimeout(()=>{state.plateIndex=Math.min(state.plateIndex+1,PLATES.length-1);plateMax=currentPlate().hp;plateHp=plateMax;state.plateHp=plateHp;plateEarned=0;save();cracks=[];toast("NOVA PLACA: "+currentPlate().name.toUpperCase());finishDrop()},950)
   }
   function finishDrop(){running=false;ball=null;$("dropButton").disabled=false;$("sceneStatus").textContent="SISTEMA PRONTO";save();render();draw()}
   function loop(now){if(!running)return;const dt=Math.min(.032,(now-lastTime)/1000||.016);lastTime=now;const d=dims();if(ball&&ball.active){ball.vy+=G*dt;ball.y+=ball.vy*dt;ball.x+=ball.vx*dt;ball.angle+=ball.spin*dt;ball.vx*=Math.pow(.985,dt*60);const floor=d.ground-12;if(ball.y+ball.r>=floor&&ball.vy>0){ball.y=floor-ball.r;hit()}}updateEffects(dt);draw();if(running)anim=requestAnimationFrame(loop)}
@@ -107,6 +107,6 @@
   $("upgradeList").addEventListener("click",e=>{const btn=e.target.closest("[data-upgrade]");if(!btn)return;const u=UPGRADES.find(x=>x.id===btn.dataset.upgrade),cost=upgradeCost(u);if(state.coins<cost||state[u.id]>=u.max)return;state.coins-=cost;state[u.id]++;save();render();toast(u.name+" melhorada!")});
   $("specialShop").addEventListener("click",e=>{const btn=e.target.closest("[data-special]");if(!btn)return;const s=SPECIALS.find(x=>x.id===btn.dataset.special);if(state.specials.includes(s.id)||state.coins<s.price)return;state.coins-=s.price;state.specials.push(s.id);save();render();toast(s.name+" adquirida!")});
   $("soundToggle").addEventListener("click",()=>{state.sound=!state.sound;$("soundToggle").style.color=state.sound?"var(--cyan)":"var(--muted)";toast(state.sound?"Som ativado":"Som desativado");save()});
-  $("resetButton").addEventListener("click",()=>{if(!confirm("Tem certeza que deseja apagar todo o progresso?"))return;state=defaultState();plateMax=currentPlate().hp;plateHp=plateMax;plateEarned=0;save();render();draw();toast("Progresso reiniciado")});
-  window.addEventListener("resize",resize);plateMax=currentPlate().hp;plateHp=plateMax;render();resize();$("soundToggle").style.color=state.sound?"var(--cyan)":"var(--muted)";
+  $("resetButton").addEventListener("click",()=>{if(!confirm("Tem certeza que deseja apagar todo o progresso?"))return;state=defaultState();plateMax=currentPlate().hp;plateHp=plateMax;state.plateHp=plateHp;plateEarned=0;save();render();draw();toast("Progresso reiniciado")});
+  window.addEventListener("resize",resize);plateMax=currentPlate().hp;plateHp=Number.isFinite(state.plateHp)&&state.plateHp!==null?Math.max(0,Math.min(plateMax,state.plateHp)):plateMax;render();resize();$("soundToggle").style.color=state.sound?"var(--cyan)":"var(--muted)";
 })();
