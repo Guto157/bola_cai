@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1017">
+  <meta name="description" content="Solte a bola, destrua materiais e evolua sua esfera.">
+  <title>BOLA CAI | Laboratório de impacto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Bola Cai início">
+        <span class="brand-mark"><span></span><span></span><span></span></span>
+        <span><strong>BOLA<span>CAI</span></strong><small>LABORATÓRIO DE IMPACTO</small></span>
+      </a>
+      <div class="top-stats">
+        <div class="currency"><span class="coin-icon">¢</span><span id="coins">0</span><small>MOEDAS</small></div>
+        <button class="icon-button" id="soundToggle" aria-label="Ativar ou desativar som" title="Som">♫</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="game-heading">
+        <div><p class="eyebrow">ESTAÇÃO DE TESTES <span class="live-dot"></span></p><h1>FORÇA DE <em>IMPACTO</em></h1></div>
+        <div class="stage-chip"><span>PLACA</span><strong id="plateLevel">01</strong></div>
+      </section>
+
+      <section class="arena-card">
+        <div class="arena-meta">
+          <div><span class="micro-label">MATERIAL EM TESTE</span><strong id="plateName">Papelão prensado</strong></div>
+          <div class="plate-hardness"><span class="micro-label">RESISTÊNCIA</span><strong id="plateHardness">Muito baixa</strong></div>
+        </div>
+        <div class="scene-wrap">
+          <canvas id="scene" aria-label="Simulação da bola quicando e quebrando uma placa"></canvas>
+          <div class="scene-vignette"></div>
+          <div class="impact-readout" id="impactReadout"><span>ÚLTIMO IMPACTO</span><strong id="lastDamage">—</strong></div>
+          <div class="combo-readout" id="comboReadout">QUIQUE <b id="bounceCount">0</b></div>
+          <div class="scene-bottom"><span id="sceneStatus">SISTEMA PRONTO</span><span>SIMULAÇÃO FÍSICA <i></i></span></div>
+        </div>
+        <div class="plate-health">
+          <div class="health-label"><span>INTEGRIDADE DA PLACA</span><strong id="plateHealthText">100%</strong></div>
+          <div class="health-track"><div id="plateHealthBar"></div></div>
+        </div>
+        <div class="launch-row">
+          <div class="ball-current"><div class="mini-ball" id="miniBall"></div><div><span class="micro-label">SUA BOLA</span><strong id="ballName">Papel amassado</strong></div></div>
+          <button id="dropButton" class="drop-button"><span class="button-icon">↓</span><span>SOLTAR BOLA</span><small>TOQUE PARA LANÇAR</small></button>
+        </div>
+      </section>
+
+      <section class="progress-grid">
+        <article class="progress-card">
+          <div class="card-topline"><span class="micro-label">EVOLUÇÃO DA BOLA</span><span class="level-tag" id="ballLevel">NÍVEL 1</span></div>
+          <div class="evolution-row"><div class="evolution-ball" id="evolutionBall"></div><div class="evolution-info"><strong id="nextBallName">Próxima: Plástico</strong><span id="evolutionText">0 / 100 XP de impacto</span></div></div>
+          <div class="xp-track"><div id="xpBar"></div></div>
+        </article>
+        <article class="progress-card earnings-card">
+          <span class="micro-label">GANHOS DESTA PLACA</span>
+          <strong class="earnings-value" id="plateEarnings">+0 <small>¢</small></strong>
+          <span class="muted-note">Moedas por dano causado</span>
+        </article>
+      </section>
+
+      <section class="lower-grid">
+        <div class="section-title"><div><p class="eyebrow">MELHORE SEU EQUIPAMENTO</p><h2>OFICINA</h2></div><span class="section-note">BÔNUS PERMANENTES</span></div>
+        <div class="upgrade-list" id="upgradeList"></div>
+        <div class="section-title shop-title"><div><p class="eyebrow">EQUIPAMENTOS ESPECIAIS</p><h2>LOJA DE ESFERAS</h2></div><span class="section-note">EFEITOS EXCLUSIVOS</span></div>
+        <div class="special-shop" id="specialShop"></div>
+      </section>
+    </main>
+    <footer><span>BOLA CAI <b>•</b> BUILD 0.1</span><span>PROGRESSO SALVO AUTOMATICAMENTE</span><button id="resetButton">REINICIAR JOGO</button></footer>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="game.js"></script>
+</body>
+</html>
